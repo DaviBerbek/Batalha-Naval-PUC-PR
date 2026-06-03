@@ -37,11 +37,11 @@ def posicionar_pecas_ia(tabuleiro, navio, lista_num):
             break
 
 def mostrar_tabuleiros(tabuleiro, tabuleiroIa):
-    print("\n--- Seu tabuleiro ---")
+    print("Seu tabuleiro")
     for linha in tabuleiro:
         print(linha)
 
-    print("\n--- Tabuleiro da IA ---")
+    print("Tabuleiro da IA")
     for linha in tabuleiroIa:
         print(linha)
 
@@ -54,9 +54,9 @@ def main():
     tabuleiroIa = criar_tabuleiro(agua)
     tabuleiroIaVerdadeiro = criar_tabuleiro(agua)
 
-    print("=== Posicione seus 5 navios ===")
+    print("Posicione seus 5 navios")
     for i in range(5):
-        print(f"\nNavio {i+1}:")
+        print(f"Navio {i+1}:")
         posicionar_pecas(tabuleiro, navio, lista_num)
 
     for i in range(5):
