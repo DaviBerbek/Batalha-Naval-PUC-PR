@@ -2,49 +2,77 @@ import random
 import time
 
 def criar_tabuleiro(agua):
-    return [[agua] * 5 for _ in range(5)]
+    return [[agua] * 10 for _ in range(5)] # aumento do tabuleiro
 
-def posicionar_pecas(tabuleiro, navio, lista_num):
+def posicionar_pecas(tabuleiro, navio, lista_linhas, lista_colunas):
     while True:
-        linha = input("Digite em qual linha deseja posicionar seu navio: ")
+        linha = input("Digite em qual linha deseja posicionar seu navio (Linhas de 1 a 5): ") # +info
 
         if not linha.isdigit():
             print("Digite apenas números!")
-        elif int(linha) not in lista_num:
-            print("Linha fora dos limites! Digite entre 0 e 4.")
+        elif int(linha) - 1 not in lista_linhas:
+            print("Linha fora dos limites! Digite entre 1 e 5.")
         else:
             while True:
-                coluna = input("Digite em qual coluna deseja posicionar seu navio: ")
+                coluna = input("Digite em qual coluna deseja posicionar seu navio (Colunas de 1 a 10): ") # +info
 
                 if not coluna.isdigit():
                     print("Digite apenas números!")
-                elif int(coluna) not in lista_num:
-                    print("Coluna fora dos limites! Digite entre 0 e 4.")
-                elif tabuleiro[int(linha)][int(coluna)] == "N":
+                elif int(coluna) - 1 not in lista_colunas:
+                    print("Coluna fora dos limites! Digite entre 1 e 10.")
+                elif tabuleiro[int(linha) - 1][int(coluna) - 1] == "N":
                     print("Posição ocupada! Selecione outro lugar.")
                 else:
-                    tabuleiro[int(linha)][int(coluna)] =navio 
+                    tabuleiro[int(linha) - 1][int(coluna) - 1] =navio
                     print("Posição ocupada com sucesso!")
                     break
             break
 
-def posicionar_pecas_ia(tabuleiro, navio, lista_num):
+def posicionar_pecas_ia(tabuleiro, navio, lista_linhas, lista_colunas):
     while True:
-        linha = random.choice(lista_num)
-        coluna = random.choice(lista_num)
+        linha = random.choice(lista_linhas) # famosas linhas e colunas
+        coluna = random.choice(lista_colunas)
 
         if tabuleiro[linha][coluna] != "N":
             tabuleiro[linha][coluna] = navio
             break
 
-def mostrar_tabuleiros(tabuleiro, tabuleiroIa):
-    print("Seu tabuleiro")
+# contar os navios restantes, melhoria no feedback (usado dentro de mostrar_tabuleiros)
+def contar_navios(tabuleiro, navio):
+    total = 0
     for linha in tabuleiro:
-        print(linha)
+        total += linha.count(navio)
+    return total
 
-    print("Tabuleiro da IA")
-    for linha in tabuleiroIa:
-        print(linha)
+# melhoria na visualização (normal usa aspas, virgula e aquela coisa toda)
+def renderizar_tabuleiro(titulo, tabuleiro):
+    print(f"\n{titulo}")
+    print("   " + " ".join(str(i+1) for i in range(len(tabuleiro[0]))))
+    for i, linha in enumerate(tabuleiro):
+        print(f"{i+1} {' '.join(linha)}")
+
+
+
+def mostrar_tabuleiros(tabuleiro, tabuleiroIa, tabuleiroIaVerdadeiro, navio):
+    # FUNCIONA, aqui alterei só para tirar a visualização base
+    # print("Seu tabuleiro")
+    # for linha in tabuleiro:
+    #     print(linha)
+
+    # print("Tabuleiro da IA")
+    # for linha in tabuleiroIa:
+    #     print(linha)
+    seus_navios = contar_navios(tabuleiroIaVerdadeiro, navio)
+    navios_ia = contar_navios(tabuleiroIaVerdadeiro, navio)
+
+    print("\nLegenda: # = Água | N = Navio | X = Acerto | O = Erro") # Leggendaaa
+    print(f"\nSeus navios restantes: {seus_navios}/5")
+    print(f"Navios da IA restantes: {navios_ia}/5")
+
+    renderizar_tabuleiro("Seu tabuleiro", tabuleiro)
+    renderizar_tabuleiro("Tabuleiro da IA", tabuleiroIa)
+
+
 
 def atacar(tabuleiro_verdadeiro, tabuleiro_visivel, linha, coluna, navio, acerto, erro):
     if tabuleiro_verdadeiro[linha][coluna] == navio:
@@ -56,43 +84,45 @@ def atacar(tabuleiro_verdadeiro, tabuleiro_visivel, linha, coluna, navio, acerto
         tabuleiro_visivel[linha][coluna] = erro
         print("Errou!")
 
-def ataque_jogador(tabuleiroIaVerdadeiro, tabuleiroIa, lista_num, navio, acerto, erro):
+def ataque_jogador(tabuleiroIaVerdadeiro, tabuleiroIa, lista_linhas, lista_colunas, navio, acerto, erro):
     print("Sua vez de atacar!")
     while True:
-        linha = input("Digite a linha para atacar: ")
+        linha = input("Digite a linha para atacar (1 - 5): ") # +info
         if not linha.isdigit():
             print("Digite apenas números!")
-        elif int(linha) not in lista_num:
-            print("Linha fora dos limites! Digite entre 0 e 4.")
+        elif int(linha) - 1 not in lista_linhas:
+            print("Linha fora dos limites! Digite entre 1 e 5.")
         else:
             while True:
-                coluna = input("Digite a coluna para atacar: ")
+                coluna = input("Digite a coluna para atacar (1 - 10): ") # +info
                 if not coluna.isdigit():
                     print("Digite apenas números!")
-                elif int(coluna) not in lista_num:
-                    print("Coluna fora dos limites! Digite entre 0 e 4.")
-                elif tabuleiroIaVerdadeiro[int(linha)][int(coluna)] == acerto or tabuleiroIaVerdadeiro[int(linha)][int(coluna)] == erro:
+                elif int(coluna) - 1 not in lista_colunas:
+                    print("Coluna fora dos limites! Digite entre 1 e 10.")
+                elif tabuleiroIaVerdadeiro[int(linha) - 1][int(coluna) - 1] == acerto or tabuleiroIaVerdadeiro[int(linha) - 1][int(coluna) - 1] == erro:
                     print("Você já atacou essa posição! Escolha outra.")
                 else:
-                    atacar(tabuleiroIaVerdadeiro, tabuleiroIa, int(linha), int(coluna), navio, acerto, erro)
+                    atacar(tabuleiroIaVerdadeiro, tabuleiroIa, int(linha) - 1, int(coluna) - 1, navio, acerto, erro)
                     break
             break
-    
-def ataque_ia(tabuleiro, lista_num, navio, acerto, erro):
+
+def ataque_ia(tabuleiro, lista_linhas, lista_colunas, navio, acerto, erro):
     print("Vez da IA atacar!")
     while True:
-        linha = random.choice(lista_num)
-        coluna = random.choice(lista_num)
+        linha = random.choice(lista_linhas) # linha e coluna de cria
+        coluna = random.choice(lista_colunas)
         if tabuleiro[linha][coluna] != acerto and tabuleiro[linha][coluna] != erro:
             atacar(tabuleiro, tabuleiro, linha, coluna, navio, acerto, erro)
             break
 
+# Primeira iteração que não achar no navio já delara a vitória. Agora só declara a vitória se passar por todas as linhas e não encontrar nenhum navio.
 def verificar_vitoria(tabuleiro, navio):
     for linha in tabuleiro:
         if navio in linha:
             return False
-        else:
-            return True
+        # else:             BUG
+        #     return True   BUG
+    return True
 
 
 
@@ -101,7 +131,8 @@ def main():
     navio = "N"
     acerto = "X"
     erro = "O"
-    lista_num = [0,1,2,3,4]
+    lista_linhas = [0,1,2,3,4] # tabuleiro 5
+    lista_colunas = [0,1,2,3,4,5,6,7,8,9] # por 10
 
     tabuleiro = criar_tabuleiro(agua)
     tabuleiroIa = criar_tabuleiro(agua)
@@ -110,23 +141,23 @@ def main():
     print("Posicione seus 5 navios")
     for i in range(5):
         print(f"Navio {i+1}:")
-        posicionar_pecas(tabuleiro, navio, lista_num)
+        posicionar_pecas(tabuleiro, navio, lista_linhas, lista_colunas) # +linha e coluna aqui
 
     for i in range(5):
-        posicionar_pecas_ia(tabuleiroIaVerdadeiro, navio, lista_num)
-
+        posicionar_pecas_ia(tabuleiroIaVerdadeiro, navio, lista_linhas, lista_colunas) # +linha e coluna aqui tbm
+# adicionado parâmetro navio e tabuleiroIaVerdadeiro em mostrar_tabuleiros
     print("Jogo iniciado!")
     while True:
-        mostrar_tabuleiros(tabuleiro, tabuleiroIa)
-        ataque_jogador(tabuleiroIaVerdadeiro, tabuleiroIa, lista_num, navio, acerto, erro)
+        mostrar_tabuleiros(tabuleiro, tabuleiroIa, tabuleiroIaVerdadeiro, navio)
+        ataque_jogador(tabuleiroIaVerdadeiro, tabuleiroIa, lista_linhas, lista_colunas, navio, acerto, erro) # também
         if verificar_vitoria(tabuleiroIaVerdadeiro, navio):
-            mostrar_tabuleiros(tabuleiro, tabuleiroIa)
+            mostrar_tabuleiros(tabuleiro, tabuleiroIa, tabuleiroIaVerdadeiro, navio)
             print("Parabéns! Você venceu!")
             break
 
-        ataque_ia(tabuleiro, lista_num, navio, acerto, erro)
+        ataque_ia(tabuleiro, lista_linhas, lista_colunas, navio, acerto, erro) # também
         if verificar_vitoria(tabuleiro, navio):
-            mostrar_tabuleiros(tabuleiro, tabuleiroIa)
+            mostrar_tabuleiros(tabuleiro, tabuleiroIa, tabuleiroIaVerdadeiro, navio)
             print("A IA venceu! Tente novamente.")
             break
 
